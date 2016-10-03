@@ -2,9 +2,86 @@
 <head>
   <title>TAED Protein Viewer</title>
   <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+  <style>
+    body {
+      margin:0px;
+      width:100%;
+      height:100%x;
+    }
+
+    #viewer {
+      position:fixed;
+      bottom:0px;
+      top:0px;
+      left:0px;
+      right:0px;
+    }
+
+    #info {
+      top:10px;
+      left:10px;
+      box-shadow: 2px 2px 5px #888888;
+      border-radius:8px;
+      position:absolute;
+      background-color:#fff;
+      padding:10px;
+      border-style:solid;
+      border-width:1px;
+      border-color:#ccc;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-image: url(images/lightTreeSM.png);
+      background-position: center; 
+    }
+
+    #templeT {
+      position: relative;
+    }
+
+    #templeT {
+      top:10px;
+      right:10px;
+      position: absolute;
+    }
+
+    #info ul {
+      padding:0px;
+    }
+
+    #info ul li {
+      margin-left:5px;
+      margin-right:5px;
+      margin-bottom:5px;
+      list-style:none;
+      cursor: pointer;
+      color:#222
+    }
+
+    h1{
+      color:#D00;
+      font-family:Georgia;
+    }
+
+    h2{
+      color:#E00;
+      font-family:Georgia;
+    }
+  </style>
 </head>
 <body>
-<div id='viewer'><span id='info'></span></div>
+<div id='viewer'></div>
+<div id='info'>
+  <h1>TAED Protein Viewer</h1>
+  <ul>
+    <li><h2>Gene family</h2></li>
+    <li>isoaspartyl peptidase/L-asparaginase, partial</li>
+    <li><h2>Substitutions</h2></li>
+    <li><span id='changes'></span></li>
+  </ul>
+</div>
+<div id='templeT'>
+  <img src="images/150px-Temple_T_logo.svg.png"/>
+</div>
 </body>
 <script type='text/javascript' src='pv/bio-pv.min.js'></script>
 <script type='text/javascript'>
@@ -12,13 +89,19 @@
 // These need to be precomputed, loaded into MySQL and perhaps obtained via PHP
 var annotations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,2,2,2,1,2,2,2,2,1,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,0,2,2,1,2,2,2,2,2,2,2,2,2,2,1,2,1,2,1,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,2,2,2,0,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,2,2,1,2,2,1,2,0,2,0,2]
 
+var indices = [167, 168, 169, 170, 171, 172, 173, 174, 185, 186, 187, 189, 190,
+ 191, 192, 194, 225, 226, 228, 229, 231, 232, 233, 234, 235, 236,
+ 237, 238, 239, 240, 242, 244, 257, 258, 259, 260, 261, 262, 263,
+ 264, 265, 266, 267, 270, 285, 286, 287, 289, 290, 292, 294, 296]
+
 var changes = ['-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','AAA->AAG','N->C','L->H','G->Q','T->I','V->A','G->S','A->Q','V->T','-','-','-','-','-','-','-','-','-','-','A->F','L->C','D->N','TCC->AGC','K->T','G->S','N->L','V->A','GCT->GCC','Y->I','GCA->GCT','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','S->H','T->M','-','G->T','I->F','GTT->GTC','N->T','K->Q','M->H','V->R','G->H','R->S','V->T','G->T','D->H','T->N','CCG->CCT','C->I','GTA->GTC','G->H','TCT->TCC','-','-','-','-','-','-','-','-','-','-','-','G->S','G->D','Y->T','A->T','D->Q','N->P','D->P','I->G','G->K','A->G','I->V','-','ACC->ACA','T->S','-','-','-','-','-','-','-','-','-','-','-','-','-','GGG->GGT','H->C','G->A','E->P','AGC->TCT','I->D','L->I','CAA->CAG','G->R','-','T->D','-','E->D']
 
 var options = {
-  width: 1400,
-  height: 750,
+  width: 'auto',
+  height: 'auto',
   antialias: true,
-  quality : 'medium'
+  quality : 'medium',
+  background: '#EEE'
 };
 
 var parent = document.getElementById('viewer');
@@ -45,14 +128,15 @@ parent.addEventListener('mousemove', function(event){
   }
   if (picked !== null){
     var atom = picked.target();
-    document.getElementById('info').innerHTML = changes[atom.residue().num()]
+    var index = atom.residue().num();
+    document.getElementById('changes').innerHTML = index + changes[index]
     var color = [0,0,0,0];
     picked.node().getColorForAtom(atom, color);
     prevPicked = { atom : atom, color : color, node : picked.node() };
     setColorForAtom(picked.node(), atom, 'green');
   }
   else{
-    document.getElementById('info').innerHTML = '&nbsp;';
+    document.getElementById('changes').innerHTML = '&nbsp;';
     prevPicked = null;
   }
   viewer.requestRedraw();
@@ -68,8 +152,8 @@ function color_substitutions() {
       out[index+0] = 0.4; out[index+1] = 0.4;
       out[index+2] = 0.4; out[index+3] = 1.0;
     } else if (annotation == 0) {
-      out[index+0] = 0.9; out[index+1] = 0.9;
-      out[index+2] = 0.9; out[index+3] = 1.0;
+      out[index+0] = 1.0; out[index+1] = 1.0;
+      out[index+2] = 1.0; out[index+3] = 1.0;
     }
   });
 }
@@ -79,9 +163,12 @@ function loadSamplePDB() {
   pv.io.fetchPdb('pdbs/4PVP.pdb', function(structure) {
     var chain = structure.select({chain: 'A'})
     viewer.cartoon('protein', chain, { color: color_substitutions() });
-    viewer.autoZoom()
+    sideChain = chain.select({rindices: indices})
+    viewer.ballsAndSticks('sideChain', sideChain);
   });
 }
-
+window.onresize = function(event) {
+  viewer.fitParent();
+}
 document.addEventListener('DOMContentLoaded', loadSamplePDB);
 </script>
