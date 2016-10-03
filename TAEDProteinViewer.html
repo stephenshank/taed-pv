@@ -1,0 +1,87 @@
+<html>
+<head>
+  <title>TAED Protein Viewer</title>
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+</head>
+<body>
+<div id='viewer'><span id='info'></span></div>
+</body>
+<script type='text/javascript' src='pv/bio-pv.min.js'></script>
+<script type='text/javascript'>
+
+// These need to be precomputed, loaded into MySQL and perhaps obtained via PHP
+var annotations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,2,2,2,1,2,2,2,2,1,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,0,2,2,1,2,2,2,2,2,2,2,2,2,2,1,2,1,2,1,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,2,2,2,0,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,2,2,1,2,2,1,2,0,2,0,2]
+
+var changes = ['-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','AAA->AAG','N->C','L->H','G->Q','T->I','V->A','G->S','A->Q','V->T','-','-','-','-','-','-','-','-','-','-','A->F','L->C','D->N','TCC->AGC','K->T','G->S','N->L','V->A','GCT->GCC','Y->I','GCA->GCT','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','S->H','T->M','-','G->T','I->F','GTT->GTC','N->T','K->Q','M->H','V->R','G->H','R->S','V->T','G->T','D->H','T->N','CCG->CCT','C->I','GTA->GTC','G->H','TCT->TCC','-','-','-','-','-','-','-','-','-','-','-','G->S','G->D','Y->T','A->T','D->Q','N->P','D->P','I->G','G->K','A->G','I->V','-','ACC->ACA','T->S','-','-','-','-','-','-','-','-','-','-','-','-','-','GGG->GGT','H->C','G->A','E->P','AGC->TCT','I->D','L->I','CAA->CAG','G->R','-','T->D','-','E->D']
+
+var options = {
+  width: 1400,
+  height: 750,
+  antialias: true,
+  quality : 'medium'
+};
+
+var parent = document.getElementById('viewer');
+var viewer = pv.Viewer(parent, options);
+
+function setColorForAtom(go, atom, color){
+  var view = go.structure().createEmptyView();
+  view.addAtom(atom);
+  go.colorBy(pv.color.uniform(color), view);
+}
+
+var prevPicked = null;
+
+parent.addEventListener('mousemove', function(event){
+  var rect = viewer.boundingClientRect();
+  var picked = viewer.pick({ x : event.clientX - rect.left,
+        y : event.clientY - rect.top });
+  if (prevPicked !== null && picked !== null &&
+    picked.target() === prevPicked.atom){
+    return;
+  }
+  if (prevPicked !== null){
+    setColorForAtom(prevPicked.node, prevPicked.atom, prevPicked.color);
+  }
+  if (picked !== null){
+    var atom = picked.target();
+    document.getElementById('info').innerHTML = changes[atom.residue().num()]
+    var color = [0,0,0,0];
+    picked.node().getColorForAtom(atom, color);
+    prevPicked = { atom : atom, color : color, node : picked.node() };
+    setColorForAtom(picked.node(), atom, 'green');
+  }
+  else{
+    document.getElementById('info').innerHTML = '&nbsp;';
+    prevPicked = null;
+  }
+  viewer.requestRedraw();
+});
+
+function color_substitutions() {
+  return new pv.color.ColorOp(function(atom, out, index) {
+    annotation = annotations[atom.residue().num()]
+    if (annotation == 2) {
+      out[index+0] = 1.0; out[index+1] = 0.0;
+      out[index+2] = 0.0; out[index+3] = 1.0;
+    } else if (annotation == 1) {
+      out[index+0] = 0.4; out[index+1] = 0.4;
+      out[index+2] = 0.4; out[index+3] = 1.0;
+    } else if (annotation == 0) {
+      out[index+0] = 0.9; out[index+1] = 0.9;
+      out[index+2] = 0.9; out[index+3] = 1.0;
+    }
+  });
+}
+
+function loadSamplePDB() {
+  // PDB used is obtained from https://files.rcsb.org/download/4PVP.pdb
+  pv.io.fetchPdb('pdbs/4PVP.pdb', function(structure) {
+    var chain = structure.select({chain: 'A'})
+    viewer.cartoon('protein', chain, { color: color_substitutions() });
+    viewer.autoZoom()
+  });
+}
+
+document.addEventListener('DOMContentLoaded', loadSamplePDB);
+</script>
