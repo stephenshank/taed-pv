@@ -34,8 +34,10 @@
       background-position: center; 
     }
 
-    #templeT {
-      position: relative;
+    #msa {
+      position:fixed;
+      bottom:10px;
+      width:100%;
     }
 
     #templeT {
@@ -79,10 +81,12 @@
     <li><span id='changes'></span></li>
   </ul>
 </div>
+<div id="msa">Loading Multiple Alignment...</div>
 <div id='templeT'>
   <img src="images/150px-Temple_T_logo.svg.png"/>
 </div>
 </body>
+<script src="https://cdn.bio.sh/msa/latest/msa.min.gz.js"></script>
 <script type='text/javascript' src='pv/bio-pv.min.js'></script>
 <script type='text/javascript'>
 
@@ -171,4 +175,16 @@ window.onresize = function(event) {
   viewer.fitParent();
 }
 document.addEventListener('DOMContentLoaded', loadSamplePDB);
+
+var rootDiv = document.getElementById("msa");
+
+var opts = {
+  el: rootDiv,
+  importURL: "./taed_aligned.fasta",
+  vis: {
+    labelId: false
+  }
+};
+var m = msa(opts);
+m.g.zoomer.set("alignmentHeight", 50) // modifies the default height
 </script>
