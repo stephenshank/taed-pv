@@ -7,8 +7,7 @@ To run, enter:
 ```
 git clone https://github.com/stephenshank/taed-pv
 cd taed-pv
-wget -O pdbs/4PVP.pdb https://files.rcsb.org/download/4PVP.pdb
-python -m http.server
+source run.sh
 ```
 
-and visit `http://0.0.0.0:8000/TAEDProteinViewer.html`.
+and visit `http://0.0.0.0:8000/TAEDProteinViewer.html` in a WebGL enabled browser.
