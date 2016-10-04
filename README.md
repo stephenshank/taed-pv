@@ -2,7 +2,7 @@
 
 Visualizing proteins from TAED, The Adaptive Evolution Database. Work in progress.
 
-To run, enter:
+To run (which involves scraping some data that gets ran through a pipeline), enter:
 
 ```
 git clone https://github.com/stephenshank/taed-pv

@@ -29,7 +29,7 @@ with open(rst_filename, 'r') as file:
     for line in file:
         split = line.split()
         # This is fine tuned to the current RST file... MUST CHANGE!!
-        descendent_codon = split[16]
+        descendent_codon = split[6]
         if descendent_codon != '---':
             descendent_sequence += descendent_codon
 taed_descendent = SeqRecord(Seq(descendent_sequence).translate(), id='taed_descendent')
