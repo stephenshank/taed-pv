@@ -4,3 +4,4 @@ python parse_rst.py -f paml/15640_8.RST > paml/15640_8.RST.parsed
 python create_unaligned_fasta.py -r paml/15640_8.RST.parsed -p pdbs/4PVP.pdb -o fasta/taed_unaligned.fasta
 mafft fasta/taed_unaligned.fasta > fasta/taed_aligned.fasta
 python create_pdb_annotations.py -r paml/15640_8.RST.parsed -i fasta/taed_aligned.fasta
+python ungap_pdb_sequence.py
