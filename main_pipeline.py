@@ -10,7 +10,7 @@ import pymysql
 from pipeline_tools import *
 
 def process_result(result):
-    rst_file={'directory':result['Directory'],
+    rst_file={'directory':int(result['Directory']),
               'file_number':result['taedFileNumber'],
               'paml_subtree':result['pamlSubtree']}
     ancestral_index, descendent_index = [int(i) for i in result['pamlNodes'].split('..')]
@@ -45,10 +45,11 @@ with connection.cursor() as cursor:
              join famMap3 as fam
              on file.taedFileNumber=fam.taedFileNumber limit 50;'''
     cursor.execute(sql)
-    result = cursor.fetchone()
-    process_result(result)
-    while result:
-        process_result(result)
-        result = cursor.fetchone()
+    
+    for result in cursor.fetchall():
+        try:
+            process_result(result)
+        except:
+            pass
     
 connection.close()

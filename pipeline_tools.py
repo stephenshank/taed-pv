@@ -17,8 +17,8 @@ from Bio.Align import MultipleSeqAlignment
 from Bio.Alphabet import IUPAC
 
 
-#DIRECTORY_ROOT = '/var/www/TAED/'
-DIRECTORY_ROOT = '/home/sshank/Documents/TAED/'
+DIRECTORY_ROOT = '/var/www/TAED/'
+#DIRECTORY_ROOT = '/home/sshank/Documents/TAED/'
 DATABASE_ROOT = DIRECTORY_ROOT+'DATABASE99/'
 TAEDPV_ROOT = DIRECTORY_ROOT+'taed-pv/'
 
