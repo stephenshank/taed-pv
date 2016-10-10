@@ -13,14 +13,14 @@ from Bio.Seq import Seq
 
 
 DIRECTORY_ROOT = '/var/www/TAED/'
+DATABASE_ROOT = DIRECTORY_ROOT+'DATABASE99/'
 TAEDPV_ROOT = DIRECTORY_ROOT+'taed-pv/'
 
 
 def parse_rst_file(directory, file_number, paml_subtree):
     input_filename = str(file_number)+'_'+str(paml_subtree)+'.RST'
-    input_path = DIRECTORY_ROOT+str(directory)+'/'+input_filename
-    output_filename = input_filename+'.parsed'
-    output_path = DIRECTORY_ROOT+str(directory)+'/'+output_filename
+    input_path = DATABASE_ROOT + ('%d/%s' % (directory, input_filename))
+    output_path = input_path + '.parsed'
     p = re.compile('\s+\d+\s+\d+\s+[ATCG-]+.+')
     with open(input_path, 'r') as input_file, open(output_path, 'w') as output_file:
         for line in input_file:
