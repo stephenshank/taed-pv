@@ -135,9 +135,9 @@ def prepare_for_visualizer(rst_file, ancestral_index, descendent_index, famMapID
     # Ungap sequence
     for seqrecord in alignment:
         if seqrecord.name == pdb_id:
-            taed_descendent = seqrecord.seq
-        else:
             pdb = seqrecord.seq
+        else:
+            taed_descendent = seqrecord.seq
     
     # pdb is in first row
     sequences = np.array([list(pdb), list(taed_descendent)])
@@ -160,9 +160,8 @@ def prepare_for_visualizer(rst_file, ancestral_index, descendent_index, famMapID
         info_file.write(','.join([str(i) for i in pdb_indices]))
         
         
-    
-
 if __name__ == '__main__':
+    # Sample use case, processing one RST file. Based on first row of famMap3.
     rst_file={'directory':111,'file_number':10005,'paml_subtree':1}
     ancestral_index, descendent_index = 32, 7
     parse_rst_file(rst_file, ancestral_index, descendent_index)

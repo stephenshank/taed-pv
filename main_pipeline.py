@@ -14,7 +14,6 @@ def process_result(result):
               'file_number':result['taedFileNumber'],
               'paml_subtree':result['pamlSubtree']}
     ancestral_index, descendent_index = [int(i) for i in result['pamlNodes'].split('..')]
-    parse_rst_file(rst_file, ancestral_index, descendent_index)
     famMapID = result['famMapID']
     pdb_id = result['pdb']
     process_rst_for_alignment(famMapID,
