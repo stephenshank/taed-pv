@@ -1,6 +1,8 @@
 # TAED Protein Viewer
 
-Visualizing proteins from TAED, The Adaptive Evolution Database. Work in progress.
+Visualizing proteins from TAED, [The Adaptive Evolution Database](https://liberles.cst.temple.edu/TAED/). Work in progress.
+
+![Snapshot of TAED Protein Viewer](./images/snapshot.png =500x250 "Snapshot of TAED Protein Viewer")
 
 To run (which involves scraping some data that gets ran through a pipeline), enter:
 
