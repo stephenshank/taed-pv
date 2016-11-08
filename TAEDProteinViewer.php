@@ -20,6 +20,7 @@
     #info {
       top:10px;
       left:10px;
+      width:400px;
       box-shadow: 2px 2px 5px #888888;
       border-radius:8px;
       position:absolute;
@@ -76,7 +77,21 @@
   <h1>TAED Protein Viewer</h1>
   <ul>
     <li><h2>Gene family</h2></li>
-    <li>isoaspartyl peptidase/L-asparaginase, partial</li>
+<?php
+$famMapID = $_GET['famMapID'];
+$mysqli = new mysqli("localhost",getenv('user'),getenv('password'),"TAED2");
+if ($mysqli->connect_errno) {
+	echo "Failed to connect to MySQL: " . $mysqli->connect_errno . ") " . $mysqli->connect_error;
+	die ("Could not connect to database.\n");
+}
+$theQuery = "SELECT * FROM proteinViewer WHERE famMapID='" . $famMapID ."';";
+$result = mysqli_query($mysqli, $theQuery);
+$row = $result->fetch_assoc();
+
+    echo "<li>" . $row['familyName'] . "</li>";
+    echo "<li><h2>Lineage</h2></li>";
+    echo "<li> " . $row['mappedBranchStart'] . " to " . $row['mappedBranchEnd'] . ", dN/dS = " . $row['dNdS'] . "</li>";
+?>
     <li><h2>Substitutions</h2></li>
     <li><span id='changes'></span></li>
   </ul>
@@ -90,15 +105,11 @@
 <script type='text/javascript' src='pv/bio-pv.min.js'></script>
 <script type='text/javascript'>
 
-// These need to be precomputed, loaded into MySQL and perhaps obtained via PHP
-var annotations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,2,2,2,1,2,2,2,2,1,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,0,2,2,1,2,2,2,2,2,2,2,2,2,2,1,2,1,2,1,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,2,2,2,0,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,2,2,1,2,2,1,2,0,2,0,2]
-
-var indices = [167, 168, 169, 170, 171, 172, 173, 174, 185, 186, 187, 189, 190,
- 191, 192, 194, 225, 226, 228, 229, 231, 232, 233, 234, 235, 236,
- 237, 238, 239, 240, 242, 244, 257, 258, 259, 260, 261, 262, 263,
- 264, 265, 266, 267, 270, 285, 286, 287, 289, 290, 292, 294, 296]
-
-var changes = ['-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','AAA->AAG','N->C','L->H','G->Q','T->I','V->A','G->S','A->Q','V->T','-','-','-','-','-','-','-','-','-','-','A->F','L->C','D->N','TCC->AGC','K->T','G->S','N->L','V->A','GCT->GCC','Y->I','GCA->GCT','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','S->H','T->M','-','G->T','I->F','GTT->GTC','N->T','K->Q','M->H','V->R','G->H','R->S','V->T','G->T','D->H','T->N','CCG->CCT','C->I','GTA->GTC','G->H','TCT->TCC','-','-','-','-','-','-','-','-','-','-','-','G->S','G->D','Y->T','A->T','D->Q','N->P','D->P','I->G','G->K','A->G','I->V','-','ACC->ACA','T->S','-','-','-','-','-','-','-','-','-','-','-','-','-','GGG->GGT','H->C','G->A','E->P','AGC->TCT','I->D','L->I','CAA->CAG','G->R','-','T->D','-','E->D']
+<?php
+echo "var annotations = [" . $row['annotations'] . "];\n";
+echo "var indices = [" . $row['indices'] . "];\n";
+echo "var changes = ['" . str_replace(",", "','", $row['changes']) . "'];\n";
+?>
 
 var options = {
   width: 'auto',
@@ -133,7 +144,7 @@ parent.addEventListener('mousemove', function(event){
   if (picked !== null){
     var atom = picked.target();
     var index = atom.residue().num();
-    document.getElementById('changes').innerHTML = index + changes[index]
+    document.getElementById('changes').innerHTML = (index+1) + changes[index]
     var color = [0,0,0,0];
     picked.node().getColorForAtom(atom, color);
     prevPicked = { atom : atom, color : color, node : picked.node() };
@@ -163,12 +174,17 @@ function color_substitutions() {
 }
 
 function loadSamplePDB() {
-  // PDB used is obtained from https://files.rcsb.org/download/4PVP.pdb
-  pv.io.fetchPdb('pdbs/4PVP.pdb', function(structure) {
-    var chain = structure.select({chain: 'A'})
+  <?php
+  	$pdbArray = explode('_', $row['pdbID']);
+  	$pdbFile = $pdbArray[0];
+  	$pdbChain = $pdbArray[1];
+	echo "pv.io.fetchPdb('./pdbs/" . $pdbFile . ".pdb', function(structure) {\n";
+	echo "var chain = structure.select({chain: '" . $pdbChain . "'})\n";
+  ?>
     viewer.cartoon('protein', chain, { color: color_substitutions() });
     sideChain = chain.select({rindices: indices})
     viewer.ballsAndSticks('sideChain', sideChain);
+    viewer.fitTo(chain);
   });
 }
 window.onresize = function(event) {
@@ -180,7 +196,7 @@ var rootDiv = document.getElementById("msa");
 
 var opts = {
   el: rootDiv,
-  importURL: "./fasta/taed_aligned_pdb_ungapped.fasta",
+  <?php echo 'importURL: "./fasta/' . $famMapID . '.fasta",'; ?>
   vis: {
     labelId: false
   }

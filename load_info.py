@@ -20,8 +20,8 @@ with connection.cursor() as cursor:
     sql = '''SELECT file.taedFileNumber, file.familyName, fam.dndsValue,
                     fam.mappedBranchEnd, fam.mappedBranchStart, file.pdb,
                     fam.famMapID
-             FROM taedfile2 as file
-             JOIN famMap3 as fam
+             FROM taedfile3 as file
+             JOIN famMap4 as fam
              ON file.taedFileNumber=fam.taedFileNumber;'''
     cursor.execute(sql)
     results = cursor.fetchall()

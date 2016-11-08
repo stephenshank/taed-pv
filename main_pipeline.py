@@ -40,9 +40,9 @@ with connection.cursor() as cursor:
                     fam.pamlSubtree,
                     fam.pamlNodes,
                     fam.famMapID
-             from taedfile2 as file 
-             join famMap3 as fam
-             on file.taedFileNumber=fam.taedFileNumber limit 50;'''
+             from taedfile3 as file 
+             join famMap4 as fam
+             on file.taedFileNumber=fam.taedFileNumber;'''
     cursor.execute(sql)
     
     for result in cursor.fetchall():
