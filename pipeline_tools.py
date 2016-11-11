@@ -159,7 +159,14 @@ def prepare_for_visualizer(rst_file, ancestral_index, descendent_index, famMapID
         info_file.write('\n')
         info_file.write(','.join([str(i) for i in pdb_indices]))
         
-        
+def extract_pdb_correction(pdb_filename, chain):
+    pdb_file = open('pdbs/'+pdb_filename+'.pdb')
+    for line in pdb_file:
+        atom_line = line[:4] == 'ATOM'
+        correct_chain = line[21].strip() == chain
+        if atom_line and correct_chain:
+            return int(line[22:31])
+
 if __name__ == '__main__':
     # Sample use case, processing one RST file. Based on first row of famMap3.
     rst_file={'directory':111,'file_number':10005,'paml_subtree':1}
@@ -174,3 +181,11 @@ if __name__ == '__main__':
                               pdb_id)
     align(famMapID)
     prepare_for_visualizer(rst_file, ancestral_index, descendent_index, famMapID, pdb_id)
+    
+    # Check that PDB extraction is working
+    pdb_filenames = ['4OLI', '3LXK', '3ZBF', '2FH7', '2OVP', '4V3K']
+    chains = ['A', 'A', 'A', 'A', 'B', 'C']
+    answers = [579, 815, 1934, 1367, 2263, 390]
+    for pdb_filename, chain, answer in zip(pdb_filenames, chains, answers):
+        assert extract_pdb_correction(pdb_filename, chain) == answer
+    print('All good')
